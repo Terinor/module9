@@ -60,9 +60,11 @@ def main():
     while True:
         command = input("Enter a command: ").strip().lower()
 
-        # Виокремлюємо назву команди та дані
-        command_name = command.split()[0]
-        data = " ".join(command.split()[1:])
+        # Якщо команда з двох слів
+        command_name = " ".join(command.split()[:2])
+        if command_name not in COMMANDS:
+            command_name = command.split()[0]  # використовуємо лише перше слово
+        data = " ".join(command.split()[len(command_name.split()):])
 
         # Якщо команда в словнику, виконуємо її
         if command_name in COMMANDS:
