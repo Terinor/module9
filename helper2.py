@@ -10,7 +10,6 @@ def input_error(func):
             return "Provide all required data."
     return inner
 
-phonebook = {}
 
 @input_error
 def add_contact(data):
@@ -43,31 +42,38 @@ def hello():
 def good_bye():
     return "Good bye!"
 
-COMMANDS = {
-    hello: 'hello',
-    add_contact: 'add',
-    change_phone: 'change',
-    get_phone: 'phone',
-    show_all: 'show all',
-    good_bye: ['good bye', 'close', 'exit']
-}
 
 def parse_command(full_command):
     split_command = full_command.split(' ', 1)
     primary_command = split_command[0]
     data = split_command[1] if len(split_command) > 1 else ""
 
-    if primary_command not in COMMANDS.values():
+    function_to_execute = None
+    for func, cmds in COMMANDS.items():
+        if primary_command in cmds:
+            function_to_execute = func
+            break
+
+    if not function_to_execute and len(full_command.split()) > 1:
         potential_two_word_command = " ".join(full_command.split()[:2])
-        if potential_two_word_command in COMMANDS.values():
-            function_to_execute = [func for func, cmd in COMMANDS.items() if cmd == potential_two_word_command][0]
-            data = ""
-        else:
-            function_to_execute = None
-    else:
-        function_to_execute = [func for func, cmd in COMMANDS.items() if cmd == primary_command][0]
-    
+        for func, cmds in COMMANDS.items():
+            if potential_two_word_command in cmds:
+                function_to_execute = func
+                break
+
     return function_to_execute, data
+
+
+COMMANDS = {
+    hello: ['hello'],
+    add_contact: ['add'],
+    change_phone: ['change'],
+    get_phone: ['phone'],
+    show_all: ['show all'],
+    good_bye: ['good bye', 'close', 'exit']
+}
+
+phonebook = {}
 
 def main():
     print("Bot Assistant is here to help you!")
@@ -75,13 +81,15 @@ def main():
         full_command = input("Enter a command: ").strip().lower()
         function_to_execute, data = parse_command(full_command)
 
+        
+        
         if function_to_execute:
             if function_to_execute in [hello, show_all, good_bye]:
                 response = function_to_execute()
             else:
                 response = function_to_execute(data)
             print(response)
-            if full_command in ["good bye", "close", "exit"]:
+            if function_to_execute == good_bye:
                 break
         else:
             print("Unknown command. Try again.")
